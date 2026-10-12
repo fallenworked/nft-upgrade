@@ -11,28 +11,47 @@ export async function POST(req: Request) {
     const tgUser = validateInitData(initData, process.env.BOT_TOKEN!);
     if (!tgUser) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
-    const { data: item } = await supabaseAdmin
-      .from("nft_usernames").select("*").eq("id", itemId).single();
+    if (!itemId) throw new Error("itemId не передан");
+
+    const { data: item, error: fetchErr } = await supabaseAdmin
+      .from("nft_usernames")
+      .select("*")
+      .eq("id", itemId)
+      .maybeSingle();
+
+    if (fetchErr) throw new Error(`fetch: ${fetchErr.message}`);
     if (!item) throw new Error("Лот не найден");
-    if (item.owner_id !== tgUser.id) throw new Error("Это не твой лот");
+    if (Number(item.owner_id) !== Number(tgUser.id))
+      throw new Error("Это не твой лот");
 
     if (unlist) {
-      await supabaseAdmin
+      const { error } = await supabaseAdmin
         .from("nft_usernames")
         .update({ is_listed: false })
         .eq("id", itemId);
+      if (error) throw new Error(`unlist: ${error.message}`);
       return NextResponse.json({ ok: true });
     }
 
-    if (!price || Number(price) <= 0) throw new Error("Некорректная цена");
+    const priceNum = Number(price);
+    if (!Number.isFinite(priceNum) || priceNum <= 0)
+      throw new Error("Некорректная цена");
 
-    await supabaseAdmin
+    const { error } = await supabaseAdmin
       .from("nft_usernames")
-      .update({ is_listed: true, price_ton: Number(price) })
+      .update({
+        is_listed: true,
+        price_ton: priceNum,
+      })
       .eq("id", itemId);
+
+    if (error) throw new Error(`update: ${error.message}`);
 
     return NextResponse.json({ ok: true });
   } catch (e: any) {
-    return NextResponse.json({ error: e.message ?? "error" }, { status: 400 });
+    return NextResponse.json(
+      { error: e.message ?? "error" },
+      { status: 400 }
+    );
   }
 }
