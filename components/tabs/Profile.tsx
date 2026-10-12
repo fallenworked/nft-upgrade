@@ -24,14 +24,6 @@ type GiftItem = {
   gift: { id: string; name: string; image_url: string; rarity: string };
 };
 
-const RARITY_COLOR: Record<string, string> = {
-  common: "#9CA3AF",
-  rare: "#3B82F6",
-  epic: "#A855F7",
-  legendary: "#F59E0B",
-  mythic: "#EF4444",
-};
-
 export default function Profile() {
   const [user, setUser] = useState<User | null>(null);
   const [usernames, setUsernames] = useState<NftItem[]>([]);
@@ -45,7 +37,6 @@ export default function Profile() {
 
     (async () => {
       try {
-        // 1. юзер
         const r1 = await fetch("/api/me", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -54,7 +45,6 @@ export default function Profile() {
         const d1 = await r1.json();
         if (d1.user) setUser(d1.user);
 
-        // 2. NFT-юзы и номера
         const r2 = await fetch("/api/fragment", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -67,7 +57,6 @@ export default function Profile() {
           setPhones(all.filter((x) => x.type === "phone"));
         }
 
-        // 3. инвентарь подарков
         const r3 = await fetch("/api/inventory", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -86,7 +75,6 @@ export default function Profile() {
   if (loading) return <div className="p-4 text-white/50">Загрузка…</div>;
   if (!user) return <div className="p-4 text-white/50">Открой через Telegram</div>;
 
-  // группировка подарков
   const giftMap = new Map<string, { gift: any; count: number }>();
   for (const item of gifts) {
     const k = item.gift.id;
@@ -96,14 +84,12 @@ export default function Profile() {
   }
   const giftList = Array.from(giftMap.values());
 
-  // сколько свободных юзов (не на продаже)
   const heldUsernames = usernames.filter((u) => !u.is_listed);
   const heldPhones = phones.filter((p) => !p.is_listed);
 
   return (
-    <div className="p-4 pb-28">
-      {/* Основной блок: ава + имя */}
-      <div className="rounded-3xl bg-[#1c1c1e] p-5">
+                   <div className="p- <4 pb-28">
+     span className=" <div classNametext="rounded-3xl bg-[#1c1c1e] p-5">
         <div className="flex items-center gap-4">
           <div className="h-20 w-20 shrink-0 overflow-hidden rounded-full bg-white/10">
             {user.avatar_url ? (
@@ -124,12 +110,11 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Блок с юзами, как на скрине Дюрова */}
         {(heldUsernames.length > 0 || heldPhones.length > 0) && (
           <div className="mt-5 space-y-2 border-t border-white/5 pt-4">
             {user.username && (
-              <div className="flex items-center">
-                <span className="text-white/50">имя пользователя</span>
+              <div className="flex items-center justify-between text-sm">
+-white/50">имя пользователя</span>
                 <span className="text-[#2AABEE]">@{user.username}</span>
               </div>
             )}
@@ -167,7 +152,6 @@ export default function Profile() {
         )}
       </div>
 
-      {/* Баланс и номер */}
       <div className="mt-3 grid grid-cols-2 gap-3">
         <div className="rounded-2xl bg-[#1c1c1e] p-4">
           <div className="text-[11px] text-white/50">Баланс</div>
@@ -187,17 +171,15 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Статистика */}
       <div className="mt-3 grid grid-cols-3 gap-2">
         <Stat label="Подарков" value={gifts.length} />
         <Stat label="Юзов" value={heldUsernames.length} />
         <Stat label="Номеров" value={heldPhones.length} />
       </div>
 
-      {/* Инвентарь подарков */}
       <div className="mt-6">
-        <h2 className="mb-3 text-lg font-bold text-white">
-          Подарки <span className="text-white/40">· {gifts.length}</span>
+        <h2 className="mb-3 text-[15px] font-medium text-white">
+          Подарки <span className="text-white/30">· {gifts.length}</span>
         </h2>
         {giftList.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-white/10 p-8 text-center text-sm text-white/40">
@@ -209,23 +191,22 @@ export default function Profile() {
               <div
                 key={gift.id}
                 className="overflow-hidden rounded-xl bg-[#1c1c1e]"
-                style={{ border: `1px solid ${RARITY_COLOR[gift.rarity] ?? "#333"}50` }}
               >
-                <div className="relative flex h-20 items-center justify-center bg-[#0f0f10] p-1">
+                <div className="relative aspect-square overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={gift.image_url}
                     alt={gift.name}
-                    className="h-full w-full object-contain"
+                    className="h-full w-full object-cover"
                   />
                   {count > 1 && (
-                    <div className="absolute right-1 top-1 rounded-md bg-black/70 px-1.5 py-0.5 text-[10px] font-bold text-white">
-                      x{count}
+                    <div className="absolute right-1.5 top-1.5 rounded-full bg-black/70 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                      ×{count}
                     </div>
                   )}
                 </div>
-                <div className="px-1.5 py-1">
-                  <div className="truncate text-[10px] text-white/70">{gift.name}</div>
+                <div className="px-2 pb-2 pt-1.5">
+                  <div className="truncate text-[11px] text-white/60">{gift.name}</div>
                 </div>
               </div>
             ))}
@@ -239,8 +220,8 @@ export default function Profile() {
 function Stat({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-2xl bg-[#1c1c1e] p-3 text-center">
-      <div className="text-lg font-bold text-white">{value}</div>
-      <div className="mt-0.5 text-[10px] text-white/50">{label}</div>
+      <div className="text-lg font-semibold text-white">{value}</div>
+      <div className="mt-0.5 text-[10px] text-white/40">{label}</div>
     </div>
   );
 }
