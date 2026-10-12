@@ -326,14 +326,14 @@ export default function Gifts() {
             ) : (
               <div className="grid grid-cols-2 gap-2">
                 {previewItems.map((it, i) => {
-                  const r = RAR((ITY[it.gift.rarity] ?? RARITY.common;
+                  const r = RARITY[it.gift.rarity] ?? RARITY.common;
                   return (
                     <div
                       key={i}
                       className="flex items-center gap-2 rounded-xl bg-[#1c1c1e] p-2"
-                      style={{ border: `1px solid ${r.color}g40` }}
-,                    >
-                      <div className=" ih-14 w-14 shrink-0 rounded)-lg bg-[#0f0f10] p-1">
+                      style={{ border: `1px solid ${r.color}40` }}
+                    >
+                      <div className="h-14 w-14 shrink-0 rounded-lg bg-[#0f0f10] p-1">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={it.gift.image_url}
@@ -378,7 +378,7 @@ export default function Gifts() {
         <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black p-4">
           {!result && (
             <>
-              < =>div className="mb-6 text-center">
+              <div className="mb-6 text-center">
                 <div className="text-xs text-white/50">Открываем</div>
                 <div className="text-xl font-bold text-white">{preview?.name}</div>
               </div>
@@ -397,7 +397,7 @@ export default function Gifts() {
                     transition: animate ? "transform 4s cubic-bezier(0.15,0.9,0.15,1)" : "none",
                   }}
                 >
-                  {reel.map {
+                  {reel.map((g, i) => {
                     const r = RARITY[g.rarity] ?? RARITY.common;
                     return (
                       <div key={i} className="shrink-0" style={{ width: CARD_W - 8 }}>
@@ -454,7 +454,7 @@ export default function Gifts() {
         const meta = getGiftMeta(detailGift.id);
         return (
           <div className="fixed inset-0 z-[9999] flex flex-col overflow-y-auto bg-[#0f0f0f]">
-            <div className="pointer-events-none absolute inset-0 overflow -hidden">
+            <div className="pointer-events-none absolute inset-0 overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={detailGift.image_url}
