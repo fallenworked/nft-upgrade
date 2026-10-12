@@ -33,7 +33,7 @@ export default function Home() {
   return (
     <main className="min-h-screen pb-20">
       {tab === "gifts" && <Gifts />}
-      {tab === "upgrade" && <div className="p-4 text-white">Upgrade</div>}
+      {tab === "upgrade" && <Upgrade />}
       {tab === "fragment" && <div className="p-4 text-white">Fragment</div>}
       {tab === "profile" && <div className="p-4 text-white">Profile</div>}
       <BottomNav active={tab} onChange={setTab} />
