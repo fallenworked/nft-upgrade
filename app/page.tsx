@@ -1,44 +1,41 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import BottomNav, { type TabKey } from "@/components/BottomNav";
+import Gifts from "@/components/tabs/Gifts";
+import { initTelegram } from "@/lib/telegram";
 
 export default function Home() {
-  const [errors, setErrors] = useState<string[]>([]);
-  const [tgStatus, setTgStatus] = useState("проверяю...");
+  const [tab, setTab] = useState<TabKey>("gifts");
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const handler = (e: ErrorEvent) => {
-      setErrors((prev) => [...prev, `JS: ${e.message}`]);
-    };
-    const rejection = (e: PromiseRejectionEvent) => {
-      setErrors((prev) => [...prev, `Promise: ${String(e.reason)}`]);
-    };
+    try {
+      initTelegram();
+    } catch (e: any) {
+      setError(`initTelegram: ${e?.message ?? e}`);
+    }
+    const handler = (e: ErrorEvent) => setError(`JS: ${e.message}`);
     window.addEventListener("error", handler);
-    window.addEventListener("unhandledrejection", rejection);
-
-    setTimeout(() => {
-      const tg = (window as any).Telegram;
-      setTgStatus(tg ? "✅ ЕСТЬ" : "❌ НЕТ");
-    }, 500);
-
-    return () => {
-      window.removeEventListener("error", handler);
-      window.removeEventListener("unhandledrejection", rejection);
-    };
+    return () => window.removeEventListener("error", handler);
   }, []);
 
-  return (
-    <div style={{ padding: 20, background: "#0f0f0f", minHeight: "100vh", color: "#fff", fontFamily: "monospace" }}>
-      <h1 className="text-2xl font-bold mb-4">ДИАГНОСТИКА</h1>
-      <div className="mb-4 p-3 rounded bg-blue-900">
-        Telegram WebApp: {tgStatus}
+  if (error) {
+    return (
+      <div style={{ padding: 20, background: "#0f0f0f", color: "#ff5555", minHeight: "100vh", fontFamily: "monospace" }}>
+        <h2>ОШИБКА:</h2>
+        <div className="mt-2 text-xs break-all">{error}</div>
       </div>
-      <div className="mb-2">Ошибок: {errors.length}</div>
-      {errors.map((e, i) => (
-        <div key={i} className="mt-2 p-2 bg-red-900 rounded text-xs break-all">
-          {e}
-        </div>
-      ))}
-    </div>
+    );
+  }
+
+  return (
+    <main className="min-h-screen pb-20">
+      {tab === "gifts" && <Gifts />}
+      {tab === "upgrade" && <div className="p-4 text-white">Upgrade</div>}
+      {tab === "fragment" && <div className="p-4 text-white">Fragment</div>}
+      {tab === "profile" && <div className="p-4 text-white">Profile</div>}
+      <BottomNav active={tab} onChange={setTab} />
+    </main>
   );
 }
