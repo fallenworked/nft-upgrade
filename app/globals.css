@@ -7,3 +7,7 @@ html, body {
   overscroll-behavior: none;
   -webkit-tap-highlight-color: transparent;
 }
+body {
+  background: #ff00ff !important;
+  color: #00ff00 !important;
+}
