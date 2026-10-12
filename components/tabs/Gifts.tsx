@@ -240,26 +240,19 @@ export default function Gifts() {
         </div>
       </div>
 
-      <h1 className="mb-3 text-2xl font-bold text-white">Gifts 🎁</h1>
+      <h1 className="mb-4 mt-2 text-[28px] font-bold text-white">Gifts</h1>
 
       <div className="grid grid-cols-2 gap-3">
         {cases.map((c) => {
-          const accent = c.is_free ? "#F59E0B" : c.slug === "premium" ? "#EF4444" : "#8B5CF6";
           const locked = c.is_free && !freeReady;
           return (
             <button
               key={c.id}
               onClick={() => !locked && openPreview(c)}
               disabled={locked}
-              className="group overflow-hidden rounded-2xl bg-[#1c1c1e] text-left transition active:scale-95 disabled:opacity-50"
-              style={{ border: `1px solid ${accent}40` }}
+              className="overflow-hidden rounded-2xl bg-[#1c1c1e] text-left transition active:scale-[0.97] disabled:opacity-50"
             >
-              <div
-                className="flex h-32 items-center justify-center text-6xl"
-                style={{
-                  background: `radial-gradient(circle at 50% 40%, ${accent}40 0%, #151517 70%)`,
-                }}
-              >
+              <div className="flex h-32 items-center justify-center text-6xl bg-[#232326]">
                 {locked ? "🔒" : "🎁"}
               </div>
               <div className="p-3">
@@ -272,10 +265,7 @@ export default function Gifts() {
                         : "Готово"
                       : "Открыть"}
                   </div>
-                  <div
-                    className="rounded-lg px-2 py-1 text-xs font-bold"
-                    style={{ background: `${accent}25`, color: accent }}
-                  >
+                  <div className="text-xs font-semibold text-white">
                     {c.is_free ? "FREE" : `${c.price_ton} TON`}
                   </div>
                 </div>
@@ -283,7 +273,6 @@ export default function Gifts() {
             </button>
           );
         })}
-      </div>
 
       <div className="mt-8">
         <h2 className="mb-3 text-lg font-bold text-white">
