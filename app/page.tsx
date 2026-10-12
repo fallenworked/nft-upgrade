@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import BottomNav, { type TabKey } from "@/components/BottomNav";
 import Gifts from "@/components/tabs/Gifts";
+import Upgrade from "@/components/tabs/Upgrade";
 import { initTelegram } from "@/lib/telegram";
 
 export default function Home() {
