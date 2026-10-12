@@ -21,7 +21,6 @@ const CARD_W = 100;
 const REEL_SIZE = 50;
 const WINNER_INDEX = 45;
 
-// --- стабильные атрибуты из id ---
 function hash(str: string): number {
   let h = 0;
   for (let i = 0; i < str.length; i++) h = ((h << 5) - h + str.charCodeAt(i)) | 0;
@@ -288,7 +287,7 @@ export default function Gifts() {
 
       {/* ПРЕВЬЮ КЕЙСА */}
       {preview && !reel.length && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-black/95">
+        <div className="fixed inset-0 z-[100] flex flex-col bg-black/95">
           <div className="flex shrink-0 items-center justify-between p-4">
             <button onClick={closeAll} className="text-2xl text-white/60">✕</button>
             <div className="text-center">
@@ -343,7 +342,7 @@ export default function Gifts() {
             )}
           </div>
 
-          <div className="shrink-0 border-t border-white/5 bg-[#0a0a0a] p-4 pb-6">
+          <div className="shrink-0 border-t border-white/5 bg-[#0a0a0a] px-4 pb-6 pt-4">
             <button
               onClick={() => spin(preview)}
               disabled={Number(user?.balance_ton ?? 0) < Number(preview.price_ton)}
@@ -357,7 +356,7 @@ export default function Gifts() {
 
       {/* РУЛЕТКА */}
       {reel.length > 0 && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 p-4">
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/95 p-4">
           {!result && (
             <>
               <div className="mb-6 text-center">
@@ -435,14 +434,14 @@ export default function Gifts() {
         </div>
       )}
 
-      {/* ==== ДЕТАЛЬНАЯ КАРТОЧКА ПОДАРКА ==== */}
+      {/* ДЕТАЛЬНАЯ КАРТОЧКА ПОДАРКА */}
       {detailGift && (() => {
         const meta = getGiftMeta(detailGift.id);
         const rarity = RARITY[detailGift.rarity] ?? RARITY.common;
         const bg = rarity.bg;
         return (
           <div
-            className="fixed inset-0 z-[100] flex flex-col overflow-y-auto"
+            className="fixed inset-0 z-[110] flex flex-col overflow-y-auto"
             style={{ background: bg }}
           >
             {/* диагональные узоры */}
@@ -563,7 +562,7 @@ export default function Gifts() {
       })()}
 
       {toast && (
-        <div className="fixed bottom-24 left-1/2 z-50 -translate-x-1/2 rounded-xl bg-red-600 px-4 py-2 text-sm text-white shadow-lg">
+        <div className="fixed bottom-24 left-1/2 z-[120] -translate-x-1/2 rounded-xl bg-red-600 px-4 py-2 text-sm text-white shadow-lg">
           {toast}
         </div>
       )}
