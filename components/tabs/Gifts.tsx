@@ -275,8 +275,8 @@ export default function Gifts() {
         })}
 
       <div className="mt-8">
-        <h2 className="mb-3 text-lg font-bold text-white">
-          Мой инвентарь <span className="text-white/40">· {inventory.length}</span>
+        <h2 className="mb-3 text-[15px] font-medium text-white">
+          Инвентарь <span className="text-white/30">· {inventory.length}</span>
         </h2>
         {invList.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-white/10 p-8 text-center text-sm text-white/40">
@@ -288,26 +288,22 @@ export default function Gifts() {
               <button
                 key={gift.id}
                 onClick={() => setDetailGift(gift)}
-                className="overflow-hidden rounded-xl bg-[#1c1c1e] text-left transition active:scale-95"
-                style={{ border: `1px solid ${RARITY[gift.rarity]?.color ?? "#333"}50` }}
+                className="overflow-hidden rounded-xl bg-[#1c1c1e] text-left transition active:scale-[0.97]"
               >
-                <div className="relative flex h-20 items-center justify-center bg-[#0f0f10] p-1">
+                <div className="relative flex aspect-square items-center justify-center p-2">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={gift.image_url} alt={gift.name} className="h-full w-full object-contain" />
                   {count > 1 && (
-                    <div className="absolute right-1 top-1 rounded-md bg-black/70 px-1.5 py-0.5 text-[10px] font-bold text-white">
-                      x{count}
+                    <div className="absolute right-1.5 top-1.5 rounded-full bg-black/70 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                      ×{count}
                     </div>
                   )}
                 </div>
-                <div className="px-1.5 py-1">
-                  <div className="truncate text-[10px] text-white/70">{gift.name}</div>
+                <div className="px-2 pb-2">
+                  <div className="truncate text-[11px] text-white/60">{gift.name}</div>
                 </div>
               </button>
             ))}
-          </div>
-        )}
-      </div>
 
       {/* ПРЕВЬЮ КЕЙСА */}
       {preview && !reel.length && (
