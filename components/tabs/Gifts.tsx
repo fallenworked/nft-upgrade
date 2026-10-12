@@ -5,9 +5,9 @@ import { getTg } from "@/lib/telegram";
 
 type Case = {
   id: string;
-  slug:;
- string;
-  name: string  price_ton: number;
+  slug: string;
+  name: string;
+  price_ton: number;
   is_free: boolean;
 };
 
