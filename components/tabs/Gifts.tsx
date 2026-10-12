@@ -216,7 +216,6 @@ export default function Gifts() {
 
   return (
     <div className="p-4 pb-28">
-      {/* Хедер */}
       <div className="mb-5 flex items-center justify-between rounded-2xl bg-[#1c1c1e] p-3">
         <div className="flex items-center gap-3">
           <div className="h-11 w-11 overflow-hidden rounded-full bg-white/10">
@@ -291,10 +290,10 @@ export default function Gifts() {
               >
                 <div className="relative aspect-square overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={gift.image_url} alt={gift.name} className="h-full w-full object-cover"=" />
+                  <img src={gift.image_url} alt={gift.name} className="h-full w-full object-cover" />
                   {count > 1 && (
-grid                    <div className="absolute right-1 grid.5 top-1.5 rounded-c-full bg-black/70 px-1.5 py-0.5 text-[10px] font-semibold textols-white">
-                      ×-{count}
+                    <div className="absolute right-1.5 top-1.5 rounded-full bg-black/70 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                      ×{count}
                     </div>
                   )}
                 </div>
@@ -307,7 +306,6 @@ grid                    <div className="absolute right-1 grid.5 top-1.5 rounded-
         )}
       </div>
 
-      {/* ПРЕВЬЮ КЕЙСА */}
       {preview && !reel.length && (
         <div className="fixed inset-0 z-[9999] flex flex-col bg-[#0a0a0a]">
           <div className="flex shrink-0 items-center justify-between p-4">
@@ -326,16 +324,16 @@ grid                    <div className="absolute right-1 grid.5 top-1.5 rounded-
             {previewLoading ? (
               <div className="py-10 text-center text-white/40">Загрузка…</div>
             ) : (
-              <div className2 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 {previewItems.map((it, i) => {
-                  const r = RARITY[it.gift.rarity] ?? RARITY.common;
+                  const r = RAR((ITY[it.gift.rarity] ?? RARITY.common;
                   return (
                     <div
                       key={i}
                       className="flex items-center gap-2 rounded-xl bg-[#1c1c1e] p-2"
-                      style={{ border: `1px solid ${r.color}40` }}
-                    >
-                      <div className="h-14 w-14 shrink-0 rounded-lg bg-[#0f0f10] p-1">
+                      style={{ border: `1px solid ${r.color}g40` }}
+,                    >
+                      <div className=" ih-14 w-14 shrink-0 rounded)-lg bg-[#0f0f10] p-1">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={it.gift.image_url}
@@ -376,12 +374,11 @@ grid                    <div className="absolute right-1 grid.5 top-1.5 rounded-
         </div>
       )}
 
-      {/* РУЛЕТКА */}
       {reel.length > 0 && (
         <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black p-4">
           {!result && (
             <>
-              <div className="mb-6 text-center">
+              < =>div className="mb-6 text-center">
                 <div className="text-xs text-white/50">Открываем</div>
                 <div className="text-xl font-bold text-white">{preview?.name}</div>
               </div>
@@ -400,7 +397,7 @@ grid                    <div className="absolute right-1 grid.5 top-1.5 rounded-
                     transition: animate ? "transform 4s cubic-bezier(0.15,0.9,0.15,1)" : "none",
                   }}
                 >
-                  {reel.map((g, i) => {
+                  {reel.map {
                     const r = RARITY[g.rarity] ?? RARITY.common;
                     return (
                       <div key={i} className="shrink-0" style={{ width: CARD_W - 8 }}>
@@ -453,13 +450,10 @@ grid                    <div className="absolute right-1 grid.5 top-1.5 rounded-
         </div>
       )}
 
-      {/* ДЕТАЛЬНАЯ КАРТОЧКА ПОДАРКА */}
       {detailGift && (() => {
         const meta = getGiftMeta(detailGift.id);
         return (
           <div className="fixed inset-0 z-[9999] flex flex-col overflow-y-auto bg-[#0f0f0f]">
-
-            {/* размытый фон из самой картинки */}
             <div className="pointer-events-none absolute inset-0 overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -479,7 +473,6 @@ grid                    <div className="absolute right-1 grid.5 top-1.5 rounded-
               </button>
             </div>
 
-            {/* картинка подарка — растворяем края маской */}
             <div className="relative z-10 flex shrink-0 items-center justify-center px-4 pt-2">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
