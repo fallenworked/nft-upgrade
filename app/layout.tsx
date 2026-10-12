@@ -1,6 +1,6 @@
+import "./globals.css";
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import "./globals.css";
 
 export const metadata: Metadata = { title: "NFT Upgrade" };
 export const viewport: Viewport = {
