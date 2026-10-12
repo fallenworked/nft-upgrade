@@ -88,8 +88,8 @@ export default function Profile() {
   const heldPhones = phones.filter((p) => !p.is_listed);
 
   return (
-                   <div className="p-4 pb-28">
-        <div className="rounded-3xl bg-[#1c1c1e] p-5">
+    <div className="p-4 pb-28">
+      <div className="rounded-3xl bg-[#1c1c1e] p-5">
         <div className="flex items-center gap-4">
           <div className="h-20 w-20 shrink-0 overflow-hidden rounded-full bg-white/10">
             {user.avatar_url ? (
