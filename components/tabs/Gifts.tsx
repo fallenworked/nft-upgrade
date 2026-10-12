@@ -454,7 +454,7 @@ export default function Gifts() {
         const meta = getGiftMeta(detailGift.id);
         return (
           <div className="fixed inset-0 z-[9999] flex flex-col overflow-y-auto bg-[#0f0f0f]">
-            <div className="pointer-events-none absolute inset-0 overflow-hidden">
+            <div className="pointer-events-none absolute inset-0 overflow -hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={detailGift.image_url}
