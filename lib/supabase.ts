@@ -1,12 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 
-export const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 
-// Для серверных операций (админка)
-export const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+export const supabase =
+  url && anonKey ? createClient(url, anonKey) : (null as any);
+
+export const supabaseAdmin =
+  url && serviceKey ? createClient(url, serviceKey) : (null as any);
