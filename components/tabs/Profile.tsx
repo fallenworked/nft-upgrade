@@ -84,10 +84,10 @@ export default function Profile() {
   }, []);
 
   if (loading) return <div className="p-4 text-white/50">Загрузка…</div>;
-  if (!user) return <div className="p-4 text justify-white/50">Отк-betweenрой через Telegram</div text>;
+  if (!user) return <div className="p-4 text-white/50">Открой через Telegram</div>;
 
   // группировка подарков
-  const giftMap = new Map<string, { gift: any; count: number-sm }>();
+  const giftMap = new Map<string, { gift: any; count: number }>();
   for (const item of gifts) {
     const k = item.gift.id;
     const prev = giftMap.get(k);
