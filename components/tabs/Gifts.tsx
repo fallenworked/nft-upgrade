@@ -1,13 +1,19 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { getTg } from "@/lib/telegram";
 
 type Case = { id: string; slug: string; name: string; price_ton: number; is_free: boolean };
 type Gift = { id: string; name: string; rarity: string; image_url: string; base_price_ton: number };
 type CaseItem = { gift: Gift; weight: number; chance: number };
 type InventoryItem = { id: string; acquired_at: string; gift: Gift };
-type User = { id: number; balance_ton: number; avatar_url: string | null; first_name: string | null };
+type User = {
+  id: number;
+  balance_ton: number;
+  avatar_url: string | null;
+  first_name: string | null;
+  last_free_case_at?: string | null;
+};
 
 const RARITY: Record<string, { color: string; bg: string; label: string }> = {
   common:    { color: "#9CA3AF", bg: "#4b4b4b", label: "Common" },
@@ -20,6 +26,7 @@ const RARITY: Record<string, { color: string; bg: string; label: string }> = {
 const CARD_W = 100;
 const REEL_SIZE = 50;
 const WINNER_INDEX = 45;
+const FREE_COOLDOWN = 24 * 60 * 60 * 1000;
 
 function hash(str: string): number {
   let h = 0;
@@ -48,6 +55,13 @@ function getGiftMeta(id: string) {
   };
 }
 
+function formatCooldown(ms: number) {
+  if (ms <= 0) return "";
+  const h = Math.floor(ms / 3600000);
+  const m = Math.floor((ms % 3600000) / 60000);
+  return `${h}ч ${m}м`;
+}
+
 export default function Gifts() {
   const [user, setUser] = useState<User | null>(null);
   const [cases, setCases] = useState<Case[]>([]);
@@ -66,6 +80,8 @@ export default function Gifts() {
 
   const [toast, setToast] = useState<string | null>(null);
   const [detailGift, setDetailGift] = useState<Gift | null>(null);
+
+  const reelRef = useRef<HTMLDivElement>(null);
 
   const tg = typeof window !== "undefined" ? getTg() : null;
 
@@ -143,23 +159,34 @@ export default function Gifts() {
       );
       setReel(fill);
 
+      // считаем точную остановку: центр карточки #45 должен совпасть со стрелкой (центр контейнера)
       requestAnimationFrame(() => {
         setTimeout(() => {
+          const containerW = reelRef.current?.offsetWidth ?? 0;
+          const cardW = CARD_W; // шаг колонки (карточка + gap)
+          const cardCenter = (CARD_W - 8) / 2;
+          const target = -(WINNER_INDEX * cardW) + (containerW / 2 - cardCenter);
           setAnimate(true);
-          setTranslate(-(WINNER_INDEX * CARD_W) + 40);
-        }, 30);
+          setTranslate(target);
+        }, 50);
       });
 
       setTimeout(async () => {
         setSpinning(false);
         setResult(winner);
-        setUser((u) => u ? { ...u, balance_ton: Number(d.newBalance) } : u);
+        setUser((u) => {
+          if (!u) return u;
+          const updated: User = { ...u, balance_ton: Number(d.newBalance) };
+          if (d.isFree) updated.last_free_case_at = new Date().toISOString();
+          return updated;
+        });
         await loadInventory();
       }, 4300);
     } catch (e: any) {
       setToast(e.message ?? "Ошибка");
-      setTimeout(() => setToast(null), 2500);
+      setTimeout(() => setToast(null), 3000);
       setSpinning(false);
+      setPreview(null);
     }
   }
 
@@ -184,6 +211,11 @@ export default function Gifts() {
   }
   const invList = Array.from(invMap.values());
 
+  const freeLeftMs = user?.last_free_case_at
+    ? Math.max(0, FREE_COOLDOWN - (Date.now() - new Date(user.last_free_case_at).getTime()))
+    : 0;
+  const freeReady = freeLeftMs === 0;
+
   return (
     <div className="p-4 pb-28">
       {/* Хедер */}
@@ -206,9 +238,6 @@ export default function Gifts() {
             </div>
           </div>
         </div>
-        <button className="rounded-xl bg-[#8B5CF6] px-4 py-2 text-sm font-semibold text-white">
-          Пополнить
-        </button>
       </div>
 
       <h1 className="mb-3 text-2xl font-bold text-white">Gifts 🎁</h1>
@@ -216,11 +245,13 @@ export default function Gifts() {
       <div className="grid grid-cols-2 gap-3">
         {cases.map((c) => {
           const accent = c.is_free ? "#F59E0B" : c.slug === "premium" ? "#EF4444" : "#8B5CF6";
+          const locked = c.is_free && !freeReady;
           return (
             <button
               key={c.id}
-              onClick={() => openPreview(c)}
-              className="group overflow-hidden rounded-2xl bg-[#1c1c1e] text-left transition active:scale-95"
+              onClick={() => !locked && openPreview(c)}
+              disabled={locked}
+              className="group overflow-hidden rounded-2xl bg-[#1c1c1e] text-left transition active:scale-95 disabled:opacity-50"
               style={{ border: `1px solid ${accent}40` }}
             >
               <div
@@ -229,13 +260,17 @@ export default function Gifts() {
                   background: `radial-gradient(circle at 50% 40%, ${accent}40 0%, #151517 70%)`,
                 }}
               >
-                🎁
+                {locked ? "🔒" : "🎁"}
               </div>
               <div className="p-3">
                 <div className="text-sm font-semibold text-white">{c.name}</div>
                 <div className="mt-2 flex items-center justify-between">
                   <div className="text-[11px] text-white/40">
-                    {c.is_free ? "Каждые 24ч" : "Открыть"}
+                    {c.is_free
+                      ? locked
+                        ? `Через ${formatCooldown(freeLeftMs)}`
+                        : "Готово"
+                      : "Открыть"}
                   </div>
                   <div
                     className="rounded-lg px-2 py-1 text-xs font-bold"
@@ -287,7 +322,7 @@ export default function Gifts() {
 
       {/* ПРЕВЬЮ КЕЙСА */}
       {preview && !reel.length && (
-        <div className="fixed inset-0 z-[100] flex flex-col bg-black/95">
+        <div className="fixed inset-0 z-[9999] flex flex-col bg-[#0a0a0a]">
           <div className="flex shrink-0 items-center justify-between p-4">
             <button onClick={closeAll} className="text-2xl text-white/60">✕</button>
             <div className="text-center">
@@ -356,14 +391,17 @@ export default function Gifts() {
 
       {/* РУЛЕТКА */}
       {reel.length > 0 && (
-        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/95 p-4">
+        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black p-4">
           {!result && (
             <>
               <div className="mb-6 text-center">
                 <div className="text-xs text-white/50">Открываем</div>
                 <div className="text-xl font-bold text-white">{preview?.name}</div>
               </div>
-              <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-[#1c1c1e] py-6">
+              <div
+                ref={reelRef}
+                className="relative w-full max-w-md overflow-hidden rounded-2xl bg-[#1c1c1e] py-6"
+              >
                 <div className="pointer-events-none absolute left-1/2 top-0 z-10 h-full w-0.5 -translate-x-1/2 bg-[#A78BFA]" />
                 <div className="pointer-events-none absolute left-1/2 top-0 z-10 -translate-x-1/2 rounded-b-lg bg-[#A78BFA] px-2 py-1 text-[10px] font-bold text-black">
                   ▼
@@ -441,10 +479,9 @@ export default function Gifts() {
         const bg = rarity.bg;
         return (
           <div
-            className="fixed inset-0 z-[110] flex flex-col overflow-y-auto"
+            className="fixed inset-0 z-[9999] flex flex-col overflow-y-auto"
             style={{ background: bg }}
           >
-            {/* диагональные узоры */}
             <div
               className="pointer-events-none fixed inset-0 opacity-[0.08]"
               style={{
@@ -453,7 +490,6 @@ export default function Gifts() {
               }}
             />
 
-            {/* верхние кнопки */}
             <div className="relative z-10 flex shrink-0 items-center justify-between p-4">
               <button
                 onClick={() => setDetailGift(null)}
@@ -461,18 +497,8 @@ export default function Gifts() {
               >
                 ✕
               </button>
-              <button
-                onClick={() => {
-                  setToast("Меню — скоро");
-                  setTimeout(() => setToast(null), 1500);
-                }}
-                className="flex h-11 w-11 items-center justify-center rounded-full bg-black/50 text-2xl text-white"
-              >
-                ⋯
-              </button>
             </div>
 
-            {/* картинка */}
             <div className="relative z-10 flex shrink-0 items-center justify-center px-6">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -482,38 +508,13 @@ export default function Gifts() {
               />
             </div>
 
-            {/* имя и коллекция */}
             <div className="relative z-10 shrink-0 px-4 pb-3 pt-4 text-center">
               <div className="text-xl font-bold text-white">
                 {detailGift.name}{" "}
                 <span className="text-white/60">#{meta.serial.toLocaleString()}</span>
               </div>
-              <div className="mt-1 text-sm text-white/70">{detailGift.name}</div>
             </div>
 
-            {/* две кнопки */}
-            <div className="relative z-10 grid shrink-0 grid-cols-2 gap-3 px-4">
-              <button
-                onClick={() => {
-                  setToast("Убрать — скоро");
-                  setTimeout(() => setToast(null), 1500);
-                }}
-                className="flex items-center justify-center gap-2 rounded-2xl bg-black/70 py-3.5 text-sm font-semibold text-white"
-              >
-                <span className="text-base">👁️‍🗨️</span> Убрать
-              </button>
-              <button
-                onClick={() => {
-                  setToast("Продажа — скоро");
-                  setTimeout(() => setToast(null), 1500);
-                }}
-                className="flex items-center justify-center gap-2 rounded-2xl bg-black/70 py-3.5 text-sm font-semibold text-white"
-              >
-                <span className="text-base">🏷️</span> Продать
-              </button>
-            </div>
-
-            {/* таблица атрибутов */}
             <div className="relative z-10 mx-4 mt-4 shrink-0 overflow-hidden rounded-2xl bg-black/25 backdrop-blur">
               <Row label="Владелец">
                 <div className="flex items-center gap-2">
@@ -543,12 +544,6 @@ export default function Gifts() {
               </Row>
             </div>
 
-            {/* текст внизу */}
-            <div className="relative z-10 mt-4 shrink-0 px-4 text-center text-xs text-white/60">
-              Подарок виден в профиле. <span className="underline">Скрыть ›</span>
-            </div>
-
-            {/* кнопка OK */}
             <div className="relative z-10 shrink-0 p-4 pb-6">
               <button
                 onClick={() => setDetailGift(null)}
@@ -562,7 +557,7 @@ export default function Gifts() {
       })()}
 
       {toast && (
-        <div className="fixed bottom-24 left-1/2 z-[120] -translate-x-1/2 rounded-xl bg-red-600 px-4 py-2 text-sm text-white shadow-lg">
+        <div className="fixed bottom-24 left-1/2 z-[10000] -translate-x-1/2 rounded-xl bg-red-600 px-4 py-2 text-sm text-white shadow-lg">
           {toast}
         </div>
       )}
