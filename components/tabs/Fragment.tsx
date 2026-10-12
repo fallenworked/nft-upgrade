@@ -82,48 +82,27 @@ export default function Fragment() {
   }
 
   async function sell() {
-    if (!sellItem || !tg?.initData) {
-      setToast(`guard: sellItem=${!!sellItem} tg=${!!tg}`);
-      setTimeout(() => setToast(null), 5000);
-      return;
-    }
+    if (!sellItem || !tg?.initData) return;
     try {
-      const body = JSON.stringify({
-        initData: tg.initData,
-        itemId: sellItem.id,
-        price: Number(sellPrice),
-      });
-
       const r = await fetch("/api/fragment/list", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body,
+        body: JSON.stringify({
+          initData: tg.initData,
+          itemId: sellItem.id,
+          price: Number(sellPrice),
+        }),
       });
-
-      const text = await r.text();
-      let d: any;
-      try {
-        d = JSON.parse(text);
-      } catch {
-        setToast(`Not JSON (${r.status}): ${text.slice(0, 120)}`);
-        setTimeout(() => setToast(null), 8000);
-        return;
-      }
-
-      if (d.error) {
-        setToast(`API: ${d.error}`);
-        setTimeout(() => setToast(null), 8000);
-        return;
-      }
-
+      const d = await r.json();
+      if (d.error) throw new Error(d.error);
       setSellItem(null);
       setSellPrice("");
       setToast("Выставлено");
       setTimeout(() => setToast(null), 2000);
       await load();
     } catch (e: any) {
-      setToast(`catch: ${String(e?.message ?? e)}`);
-      setTimeout(() => setToast(null), 8000);
+      setToast(e.message ?? "Ошибка");
+      setTimeout(() => setToast(null), 3000);
     }
   }
 
@@ -160,7 +139,7 @@ export default function Fragment() {
         </div>
       </div>
 
-      <h1 className="mb-3 text-2xl font-bold text-white">Fragment 💎</h1>
+      <h1 className="mb-4 mt-2 text-[28px] font-bold text-white">Fragment</h1>
 
       <div className="mb-3 flex gap-2 rounded-xl bg-[#1c1c1e] p-1">
         {(["username", "phone"] as const).map((t) => (
@@ -168,7 +147,7 @@ export default function Fragment() {
             key={t}
             onClick={() => setTab(t)}
             className={`flex-1 rounded-lg py-2 text-sm font-semibold transition ${
-              tab === t ? "bg-[#8B5CF6] text-white" : "text-white/60"
+              tab === t ? "bg-white/10 text-white" : "text-white/40"
             }`}
           >
             {t === "username" ? "Usernames" : "Numbers"}
@@ -231,8 +210,8 @@ export default function Fragment() {
 
       {mine.length > 0 && (
         <div className="mt-8">
-          <h2 className="mb-3 text-lg font-bold text-white">
-            Мои активы <span className="text-white/40">· {mine.length}</span>
+          <h2 className="mb-3 text-[15px] font-medium text-white">
+            Мои активы <span className="text-white/30">· {mine.length}</span>
           </h2>
           <div className="overflow-hidden rounded-2xl bg-[#1c1c1e]">
             {mine.map((it, i) => (
@@ -253,14 +232,14 @@ export default function Fragment() {
                 {it.is_listed ? (
                   <button
                     onClick={() => unlist(it)}
-                    className="rounded-lg bg-white/5 px-3 py-1.5 text-xs font-semibold text-white"
+                    className="rounded-lg bg-white/10 px-3 py-1.5 text-xs font-semibold text-white"
                   >
                     Снять
                   </button>
                 ) : (
                   <button
                     onClick={() => { setSellItem(it); setSellPrice(""); }}
-                    className="rounded-lg bg-[#8B5CF6] px-3 py-1.5 text-xs font-semibold text-white"
+                    className="rounded-lg bg-white/10 px-3 py-1.5 text-xs font-semibold text-white"
                   >
                     Продать
                   </button>
@@ -314,7 +293,7 @@ export default function Fragment() {
               <button
                 onClick={buy}
                 disabled={Number(user?.balance_ton ?? 0) < buyItem.price_ton}
-                className="rounded-xl bg-[#8B5CF6] py-3 text-sm font-semibold text-white disabled:opacity-40"
+                className="rounded-xl bg-white/10 py-3 text-sm font-semibold text-white disabled:opacity-40"
               >
                 Купить
               </button>
@@ -359,7 +338,7 @@ export default function Fragment() {
               <button
                 onClick={sell}
                 disabled={!sellPrice || Number(sellPrice) <= 0}
-                className="rounded-xl bg-[#8B5CF6] py-3 text-sm font-semibold text-white disabled:opacity-40"
+                className="rounded-xl bg-white/10 py-3 text-sm font-semibold text-white disabled:opacity-40"
               >
                 Выставить
               </button>
@@ -369,7 +348,7 @@ export default function Fragment() {
       )}
 
       {toast && (
-        <div className="fixed bottom-24 left-1/2 z-[10000] max-w-[90%] -translate-x-1/2 rounded-xl bg-[#8B5CF6] px-4 py-2 text-center text-xs text-white shadow-lg">
+        <div className="fixed bottom-24 left-1/2 z-[10000] max-w-[90%] -translate-x-1/2 rounded-xl bg-white/15 px-4 py-2 text-center text-xs text-white shadow-lg">
           {toast}
         </div>
       )}
