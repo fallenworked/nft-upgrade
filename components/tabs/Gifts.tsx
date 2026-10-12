@@ -9,17 +9,45 @@ type CaseItem = { gift: Gift; weight: number; chance: number };
 type InventoryItem = { id: string; acquired_at: string; gift: Gift };
 type User = { id: number; balance_ton: number; avatar_url: string | null; first_name: string | null };
 
-const RARITY: Record<string, { color: string; label: string }> = {
-  common:    { color: "#6B7280", label: "Common" },
-  rare:      { color: "#3B82F6", label: "Rare" },
-  epic:      { color: "#A855F7", label: "Epic" },
-  legendary: { color: "#F59E0B", label: "Legendary" },
-  mythic:    { color: "#EF4444", label: "Mythic" },
+const RARITY: Record<string, { color: string; bg: string; label: string }> = {
+  common:    { color: "#9CA3AF", bg: "#4b4b4b", label: "Common" },
+  rare:      { color: "#3B82F6", bg: "#1e3a5f", label: "Rare" },
+  epic:      { color: "#A855F7", bg: "#3a1e5a", label: "Epic" },
+  legendary: { color: "#F59E0B", bg: "#4a2f0d", label: "Legendary" },
+  mythic:    { color: "#EF4444", bg: "#4a1010", label: "Mythic" },
 };
 
 const CARD_W = 100;
 const REEL_SIZE = 50;
 const WINNER_INDEX = 45;
+
+// --- стабильные атрибуты из id ---
+function hash(str: string): number {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = ((h << 5) - h + str.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+function pickStable<T>(arr: T[], seed: number): T {
+  return arr[seed % arr.length];
+}
+const MODELS = ["Smoke Dogg", "Emerald", "Phantom", "Aurora", "Comet", "Nebula"];
+const PATTERNS = ["UZI", "Stars", "Camo", "Zebra", "Geometric", "Wave"];
+const BACKGROUNDS = ["Copper", "Obsidian", "Royal", "Emerald", "Sunset", "Arctic"];
+
+function getGiftMeta(id: string) {
+  const h = hash(id);
+  return {
+    serial: (h % 90000) + 10000,
+    model: pickStable(MODELS, h),
+    modelChance: ((h % 45) / 10 + 0.2).toFixed(1),
+    pattern: pickStable(PATTERNS, h >> 3),
+    patternChance: (((h >> 3) % 30) / 10 + 0.1).toFixed(1),
+    background: pickStable(BACKGROUNDS, h >> 5),
+    backgroundChance: (((h >> 5) % 25) / 10 + 0.2).toFixed(1),
+    total: 120000,
+    issued: 100000 + (h % 20000),
+  };
+}
 
 export default function Gifts() {
   const [user, setUser] = useState<User | null>(null);
@@ -27,12 +55,10 @@ export default function Gifts() {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // превью кейса
   const [preview, setPreview] = useState<Case | null>(null);
   const [previewItems, setPreviewItems] = useState<CaseItem[]>([]);
   const [previewLoading, setPreviewLoading] = useState(false);
 
-  // рулетка
   const [reel, setReel] = useState<Gift[]>([]);
   const [translate, setTranslate] = useState(0);
   const [animate, setAnimate] = useState(false);
@@ -150,7 +176,6 @@ export default function Gifts() {
 
   if (loading) return <div className="p-4 text-white/50">Загрузка…</div>;
 
-  // группировка инвентаря
   const invMap = new Map<string, { gift: Gift; count: number }>();
   for (const item of inventory) {
     const k = item.gift.id;
@@ -187,10 +212,8 @@ export default function Gifts() {
         </button>
       </div>
 
-      {/* Заголовок */}
       <h1 className="mb-3 text-2xl font-bold text-white">Gifts 🎁</h1>
 
-      {/* Сетка кейсов */}
       <div className="grid grid-cols-2 gap-3">
         {cases.map((c) => {
           const accent = c.is_free ? "#F59E0B" : c.slug === "premium" ? "#EF4444" : "#8B5CF6";
@@ -228,7 +251,6 @@ export default function Gifts() {
         })}
       </div>
 
-      {/* Инвентарь */}
       <div className="mt-8">
         <h2 className="mb-3 text-lg font-bold text-white">
           Мой инвентарь <span className="text-white/40">· {inventory.length}</span>
@@ -264,7 +286,7 @@ export default function Gifts() {
         )}
       </div>
 
-      {/* ==== МОДАЛКА ПРЕВЬЮ КЕЙСА ==== */}
+      {/* ПРЕВЬЮ КЕЙСА */}
       {preview && !reel.length && (
         <div className="fixed inset-0 z-50 flex flex-col bg-black/95">
           <div className="flex shrink-0 items-center justify-between p-4">
@@ -333,7 +355,7 @@ export default function Gifts() {
         </div>
       )}
 
-      {/* ==== МОДАЛКА РУЛЕТКИ ==== */}
+      {/* РУЛЕТКА */}
       {reel.length > 0 && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 p-4">
           {!result && (
@@ -413,78 +435,129 @@ export default function Gifts() {
         </div>
       )}
 
-      {/* ==== МОДАЛКА ДЕТАЛЕЙ ПОДАРКА ==== */}
-      {detailGift && (
-        <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/80 p-4"
-          onClick={() => setDetailGift(null)}
-        >
-          <div
-            className="w-full max-w-md rounded-3xl bg-[#1c1c1e] p-5"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="mb-4 flex items-center justify-between">
-              <div
-                className="rounded-lg px-2 py-1 text-[10px] font-bold uppercase"
-                style={{
-                  background: `${RARITY[detailGift.rarity]?.color ?? "#666"}25`,
-                  color: RARITY[detailGift.rarity]?.color ?? "#999",
-                }}
-              >
-                {RARITY[detailGift.rarity]?.label ?? detailGift.rarity}
-              </div>
+      {/* ==== ДЕТАЛЬНАЯ КАРТОЧКА ПОДАРКА ==== */}
+      {detailGift && (() => {
+        const meta = getGiftMeta(detailGift.id);
+        const rarity = RARITY[detailGift.rarity] ?? RARITY.common;
+        const bg = rarity.bg;
+        return (
+          <div className="fixed inset-0 z-50 flex flex-col" style={{ background: bg }}>
+            {/* диагональные узоры */}
+            <div
+              className="pointer-events-none absolute inset-0 opacity-[0.08]"
+              style={{
+                backgroundImage:
+                  "repeating-linear-gradient(45deg, #fff 0, #fff 2px, transparent 2px, transparent 22px)",
+              }}
+            />
+
+            {/* верхние кнопки */}
+            <div className="relative z-10 flex items-center justify-between p-4">
               <button
                 onClick={() => setDetailGift(null)}
-                className="text-2xl text-white/40"
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-black/50 text-2xl text-white"
               >
                 ✕
               </button>
+              <button
+                onClick={() => {
+                  setToast("Меню — скоро");
+                  setTimeout(() => setToast(null), 1500);
+                }}
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-black/50 text-2xl text-white"
+              >
+                ⋯
+              </button>
             </div>
 
-            <div
-              className="mx-auto flex h-40 w-40 items-center justify-center rounded-2xl bg-[#0f0f10] p-3"
-              style={{
-                border: `2px solid ${RARITY[detailGift.rarity]?.color ?? "#333"}`,
-              }}
-            >
+            {/* картинка */}
+            <div className="relative z-10 flex flex-1 items-center justify-center px-6">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={detailGift.image_url}
                 alt={detailGift.name}
-                className="h-full w-full object-contain"
+                className="max-h-56 w-auto object-contain drop-shadow-2xl"
               />
             </div>
 
-            <div className="mt-4 text-center">
-              <div className="text-xl font-bold text-white">{detailGift.name}</div>
-              <div className="mt-1 text-sm text-white/50">
-                ≈ {Number(detailGift.base_price_ton).toFixed(2)} TON
+            {/* имя и коллекция */}
+            <div className="relative z-10 px-4 pb-3 text-center">
+              <div className="text-2xl font-bold text-white">
+                {detailGift.name}{" "}
+                <span className="text-white/60">#{meta.serial.toLocaleString()}</span>
               </div>
+              <div className="mt-1 text-sm text-white/70">{detailGift.name}</div>
             </div>
 
-            <div className="mt-6 grid grid-cols-2 gap-2">
+            {/* две кнопки */}
+            <div className="relative z-10 grid grid-cols-2 gap-3 px-4">
+              <button
+                onClick={() => {
+                  setToast("Убрать — скоро");
+                  setTimeout(() => setToast(null), 1500);
+                }}
+                className="flex items-center justify-center gap-2 rounded-2xl bg-black/70 py-4 text-sm font-semibold text-white"
+              >
+                <span className="text-lg">👁️‍🗨️</span> Убрать
+              </button>
               <button
                 onClick={() => {
                   setToast("Продажа — скоро");
                   setTimeout(() => setToast(null), 1500);
                 }}
-                className="rounded-xl bg-white/5 py-3 text-sm font-semibold text-white"
+                className="flex items-center justify-center gap-2 rounded-2xl bg-black/70 py-4 text-sm font-semibold text-white"
               >
-                Продать
+                <span className="text-lg">🏷️</span> Продать
               </button>
+            </div>
+
+            {/* таблица атрибутов */}
+            <div className="relative z-10 mx-4 mt-4 overflow-hidden rounded-2xl bg-black/25 backdrop-blur">
+              <Row label="Владелец">
+                <div className="flex items-center gap-2">
+                  <div className="h-6 w-6 overflow-hidden rounded-full bg-white/10">
+                    {user?.avatar_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={user.avatar_url} alt="" className="h-full w-full object-cover" />
+                    ) : null}
+                  </div>
+                  <span>{user?.first_name ?? "You"}</span>
+                </div>
+              </Row>
+              <Row label="Модель">
+                {meta.model}
+                <Chip>{meta.modelChance}%</Chip>
+              </Row>
+              <Row label="Узор">
+                {meta.pattern}
+                <Chip>{meta.patternChance}%</Chip>
+              </Row>
+              <Row label="Фон">
+                {meta.background}
+                <Chip>{meta.backgroundChance}%</Chip>
+              </Row>
+              <Row label="Наличие">
+                {meta.issued.toLocaleString()}/{meta.total.toLocaleString()} выпущено
+              </Row>
+            </div>
+
+            {/* текст внизу */}
+            <div className="relative z-10 mt-4 px-4 text-center text-sm text-white/60">
+              Подарок виден в профиле. <span className="underline">Скрыть ›</span>
+            </div>
+
+            {/* кнопка OK */}
+            <div className="relative z-10 p-4 pb-6">
               <button
-                onClick={() => {
-                  setToast("Апгрейд — скоро");
-                  setTimeout(() => setToast(null), 1500);
-                }}
-                className="rounded-xl bg-[#8B5CF6] py-3 text-sm font-semibold text-white"
+                onClick={() => setDetailGift(null)}
+                className="w-full rounded-2xl bg-white py-4 text-lg font-bold text-black"
               >
-                В апгрейд
+                OK
               </button>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {toast && (
         <div className="fixed bottom-24 left-1/2 z-50 -translate-x-1/2 rounded-xl bg-red-600 px-4 py-2 text-sm text-white shadow-lg">
@@ -492,5 +565,22 @@ export default function Gifts() {
         </div>
       )}
     </div>
+  );
+}
+
+function Row({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between border-b border-white/10 px-4 py-3 text-sm text-white last:border-b-0">
+      <span className="text-white/70">{label}</span>
+      <span className="flex items-center gap-2 font-medium">{children}</span>
+    </div>
+  );
+}
+
+function Chip({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="rounded-md bg-white/15 px-2 py-0.5 text-[11px] text-white/80">
+      {children}
+    </span>
   );
 }
