@@ -463,20 +463,19 @@ export default function Gifts() {
       {/* ДЕТАЛЬНАЯ КАРТОЧКА ПОДАРКА */}
       {detailGift && (() => {
         const meta = getGiftMeta(detailGift.id);
-        const rarity = RARITY[detailGift.rarity] ?? RARITY.common;
-        const bg = rarity.bg;
         return (
-          <div
-            className="fixed inset-0 z-[9999] flex flex-col overflow-y-auto"
-            style={{ background: bg }}
-          >
-            <div
-              className="pointer-events-none fixed inset-0 opacity-[0.08]"
-              style={{
-                backgroundImage:
-                  "repeating-linear-gradient(45deg, #fff 0, #fff 2px, transparent 2px, transparent 22px)",
-              }}
-            />
+          <div className="fixed inset-0 z-[9999] flex flex-col overflow-y-auto bg-[#0f0f0f]">
+
+            {/* размытый фон из самой картинки */}
+            <div className="pointer-events-none absolute inset-0 overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={detailGift.image_url}
+                alt=""
+                className="h-full w-full scale-150 object-cover opacity-40 blur-3xl"
+              />
+              <div className="absolute inset-0 bg-black/40" />
+            </div>
 
             <div className="relative z-10 flex shrink-0 items-center justify-between p-4">
               <button
@@ -487,34 +486,24 @@ export default function Gifts() {
               </button>
             </div>
 
-            <div className="relative z-10 flex shrink-0 items-center justify-center px-6">
+            {/* картинка подарка — большая, без квадрата-обёртки */}
+            <div className="relative z-10 flex shrink-0 items-center justify-center px-6 pt-2">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={detailGift.image_url}
                 alt={detailGift.name}
-                className="max-h-40 w-auto object-contain drop-shadow-2xl"
+                className="max-h-56 w-auto object-contain drop-shadow-2xl"
               />
             </div>
 
-            <div className="relative z-10 shrink-0 px-4 pb-3 pt-4 text-center">
-              <div className="text-xl font-bold text-white">
+            <div className="relative z-10 shrink-0 px-4 pb-3 pt-5 text-center">
+              <div className="text-xl font-semibold text-white">
                 {detailGift.name}{" "}
-                <span className="text-white/60">#{meta.serial.toLocaleString()}</span>
+                <span className="text-white/40">#{meta.serial.toLocaleString()}</span>
               </div>
             </div>
 
-            <div className="relative z-10 mx-4 mt-4 shrink-0 overflow-hidden rounded-2xl bg-black/25 backdrop-blur">
-              <Row label="Владелец">
-                <div className="flex items-center gap-2">
-                  <div className="h-6 w-6 overflow-hidden rounded-full bg-white/10">
-                    {user?.avatar_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={user.avatar_url} alt="" className="h-full w-full object-cover" />
-                    ) : null}
-                  </div>
-                  <span>{user?.first_name ?? "You"}</span>
-                </div>
-              </Row>
+            <div className="relative z-10 mx-4 mt-4 shrink-0 overflow-hidden rounded-2xl bg-black/30 backdrop-blur">
               <Row label="Модель">
                 {meta.model}
                 <Chip>{meta.modelChance}%</Chip>
