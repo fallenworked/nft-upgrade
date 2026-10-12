@@ -441,10 +441,13 @@ export default function Gifts() {
         const rarity = RARITY[detailGift.rarity] ?? RARITY.common;
         const bg = rarity.bg;
         return (
-          <div className="fixed inset-0 z-50 flex flex-col" style={{ background: bg }}>
+          <div
+            className="fixed inset-0 z-[100] flex flex-col overflow-y-auto"
+            style={{ background: bg }}
+          >
             {/* диагональные узоры */}
             <div
-              className="pointer-events-none absolute inset-0 opacity-[0.08]"
+              className="pointer-events-none fixed inset-0 opacity-[0.08]"
               style={{
                 backgroundImage:
                   "repeating-linear-gradient(45deg, #fff 0, #fff 2px, transparent 2px, transparent 22px)",
@@ -452,7 +455,7 @@ export default function Gifts() {
             />
 
             {/* верхние кнопки */}
-            <div className="relative z-10 flex items-center justify-between p-4">
+            <div className="relative z-10 flex shrink-0 items-center justify-between p-4">
               <button
                 onClick={() => setDetailGift(null)}
                 className="flex h-11 w-11 items-center justify-center rounded-full bg-black/50 text-2xl text-white"
@@ -471,18 +474,18 @@ export default function Gifts() {
             </div>
 
             {/* картинка */}
-            <div className="relative z-10 flex flex-1 items-center justify-center px-6">
+            <div className="relative z-10 flex shrink-0 items-center justify-center px-6">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={detailGift.image_url}
                 alt={detailGift.name}
-                className="max-h-56 w-auto object-contain drop-shadow-2xl"
+                className="max-h-40 w-auto object-contain drop-shadow-2xl"
               />
             </div>
 
             {/* имя и коллекция */}
-            <div className="relative z-10 px-4 pb-3 text-center">
-              <div className="text-2xl font-bold text-white">
+            <div className="relative z-10 shrink-0 px-4 pb-3 pt-4 text-center">
+              <div className="text-xl font-bold text-white">
                 {detailGift.name}{" "}
                 <span className="text-white/60">#{meta.serial.toLocaleString()}</span>
               </div>
@@ -490,29 +493,29 @@ export default function Gifts() {
             </div>
 
             {/* две кнопки */}
-            <div className="relative z-10 grid grid-cols-2 gap-3 px-4">
+            <div className="relative z-10 grid shrink-0 grid-cols-2 gap-3 px-4">
               <button
                 onClick={() => {
                   setToast("Убрать — скоро");
                   setTimeout(() => setToast(null), 1500);
                 }}
-                className="flex items-center justify-center gap-2 rounded-2xl bg-black/70 py-4 text-sm font-semibold text-white"
+                className="flex items-center justify-center gap-2 rounded-2xl bg-black/70 py-3.5 text-sm font-semibold text-white"
               >
-                <span className="text-lg">👁️‍🗨️</span> Убрать
+                <span className="text-base">👁️‍🗨️</span> Убрать
               </button>
               <button
                 onClick={() => {
                   setToast("Продажа — скоро");
                   setTimeout(() => setToast(null), 1500);
                 }}
-                className="flex items-center justify-center gap-2 rounded-2xl bg-black/70 py-4 text-sm font-semibold text-white"
+                className="flex items-center justify-center gap-2 rounded-2xl bg-black/70 py-3.5 text-sm font-semibold text-white"
               >
-                <span className="text-lg">🏷️</span> Продать
+                <span className="text-base">🏷️</span> Продать
               </button>
             </div>
 
             {/* таблица атрибутов */}
-            <div className="relative z-10 mx-4 mt-4 overflow-hidden rounded-2xl bg-black/25 backdrop-blur">
+            <div className="relative z-10 mx-4 mt-4 shrink-0 overflow-hidden rounded-2xl bg-black/25 backdrop-blur">
               <Row label="Владелец">
                 <div className="flex items-center gap-2">
                   <div className="h-6 w-6 overflow-hidden rounded-full bg-white/10">
@@ -542,12 +545,12 @@ export default function Gifts() {
             </div>
 
             {/* текст внизу */}
-            <div className="relative z-10 mt-4 px-4 text-center text-sm text-white/60">
+            <div className="relative z-10 mt-4 shrink-0 px-4 text-center text-xs text-white/60">
               Подарок виден в профиле. <span className="underline">Скрыть ›</span>
             </div>
 
             {/* кнопка OK */}
-            <div className="relative z-10 p-4 pb-6">
+            <div className="relative z-10 shrink-0 p-4 pb-6">
               <button
                 onClick={() => setDetailGift(null)}
                 className="w-full rounded-2xl bg-white py-4 text-lg font-bold text-black"
