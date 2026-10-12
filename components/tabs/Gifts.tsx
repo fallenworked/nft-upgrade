@@ -12,7 +12,6 @@ type User = {
   balance_ton: number;
   avatar_url: string | null;
   first_name: string | null;
-  last_last_free_case_at?: string | null;
   last_free_case_at?: string | null;
 };
 
@@ -290,16 +289,16 @@ export default function Gifts() {
                 onClick={() => setDetailGift(gift)}
                 className="overflow-hidden rounded-xl bg-[#1c1c1e] text-left transition active:scale-[0.97]"
               >
-                <div className="relative flex aspect-square items-center justify-center p-2">
+                <div className="relative aspect-square overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={gift.image_url} alt={gift.name} className="h-full w-full object-contain" />
+                  <img src={gift.image_url} alt={gift.name} className="h-full w-full object-cover"=" />
                   {count > 1 && (
-                    <div className="absolute right-1.5 top-1.5 rounded-full bg-black/70 px-1.5 py-0.5 text-[10px] font-semibold text-white">
-                      ×{count}
+grid                    <div className="absolute right-1 grid.5 top-1.5 rounded-c-full bg-black/70 px-1.5 py-0.5 text-[10px] font-semibold textols-white">
+                      ×-{count}
                     </div>
                   )}
                 </div>
-                <div className="px-2 pb-2">
+                <div className="px-2 pb-2 pt-1.5">
                   <div className="truncate text-[11px] text-white/60">{gift.name}</div>
                 </div>
               </button>
@@ -327,7 +326,7 @@ export default function Gifts() {
             {previewLoading ? (
               <div className="py-10 text-center text-white/40">Загрузка…</div>
             ) : (
-              <div className="grid grid-cols-2 gap-2">
+              <div className2 gap-2">
                 {previewItems.map((it, i) => {
                   const r = RARITY[it.gift.rarity] ?? RARITY.common;
                   return (
@@ -434,15 +433,9 @@ export default function Gifts() {
                 {RARITY[result.rarity]?.label ?? result.rarity}
               </div>
 
-              <div
-                className="mx-auto mt-6 flex h-48 w-48 items-center justify-center rounded-3xl bg-[#1c1c1e] p-4"
-                style={{
-                  border: `2px solid ${RARITY[result.rarity]?.color ?? "#333"}`,
-                  boxShadow: `0 0 40px ${RARITY[result.rarity]?.color ?? "#333"}50`,
-                }}
-              >
+              <div className="mx-auto mt-6 h-48 w-48 overflow-hidden rounded-3xl">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={result.image_url} alt={result.name} className="h-full w-full object-contain" />
+                <img src={result.image_url} alt={result.name} className="h-full w-full object-cover" />
               </div>
 
               <div className="mt-4 text-sm text-white/50">
@@ -486,13 +479,17 @@ export default function Gifts() {
               </button>
             </div>
 
-            {/* картинка подарка — большая, без квадрата-обёртки */}
-            <div className="relative z-10 flex shrink-0 items-center justify-center px-6 pt-2">
+            {/* картинка подарка — растворяем края маской */}
+            <div className="relative z-10 flex shrink-0 items-center justify-center px-4 pt-2">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={detailGift.image_url}
                 alt={detailGift.name}
-                className="max-h-56 w-auto object-contain drop-shadow-2xl"
+                className="h-64 w-64 object-cover"
+                style={{
+                  WebkitMaskImage: "radial-gradient(circle, black 55%, transparent 92%)",
+                  maskImage: "radial-gradient(circle, black 55%, transparent 92%)",
+                }}
               />
             </div>
 
