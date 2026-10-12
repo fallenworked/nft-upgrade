@@ -114,7 +114,7 @@ export default function Profile() {
           <div className="mt-5 space-y-2 border-t border-white/5 pt-4">
             {user.username && (
               <div className="flex items-center justify-between text-sm">
--white/50">имя пользователя</span>
+                <span className="text-white/50">имя пользователя</span>
                 <span className="text-[#2AABEE]">@{user.username}</span>
               </div>
             )}
