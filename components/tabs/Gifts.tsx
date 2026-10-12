@@ -12,6 +12,7 @@ type User = {
   balance_ton: number;
   avatar_url: string | null;
   first_name: string | null;
+  last_last_free_case_at?: string | null;
   last_free_case_at?: string | null;
 };
 
@@ -159,13 +160,11 @@ export default function Gifts() {
       );
       setReel(fill);
 
-      // считаем точную остановку: центр карточки #45 должен совпасть со стрелкой (центр контейнера)
       requestAnimationFrame(() => {
         setTimeout(() => {
           const containerW = reelRef.current?.offsetWidth ?? 0;
-          const cardW = CARD_W; // шаг колонки (карточка + gap)
           const cardCenter = (CARD_W - 8) / 2;
-          const target = -(WINNER_INDEX * cardW) + (containerW / 2 - cardCenter);
+          const target = -(WINNER_INDEX * CARD_W) + (containerW / 2 - cardCenter);
           setAnimate(true);
           setTranslate(target);
         }, 50);
@@ -273,6 +272,7 @@ export default function Gifts() {
             </button>
           );
         })}
+      </div>
 
       <div className="mt-8">
         <h2 className="mb-3 text-[15px] font-medium text-white">
@@ -304,6 +304,9 @@ export default function Gifts() {
                 </div>
               </button>
             ))}
+          </div>
+        )}
+      </div>
 
       {/* ПРЕВЬЮ КЕЙСА */}
       {preview && !reel.length && (
@@ -387,8 +390,8 @@ export default function Gifts() {
                 ref={reelRef}
                 className="relative w-full max-w-md overflow-hidden rounded-2xl bg-[#1c1c1e] py-6"
               >
-                <div className="pointer-events-none absolute left-1/2 top-0 z-10 h-full w-0.5 -translate-x-1/2 bg-[#A78BFA]" />
-                <div className="pointer-events-none absolute left-1/2 top-0 z-10 -translate-x-1/2 rounded-b-lg bg-[#A78BFA] px-2 py-1 text-[10px] font-bold text-black">
+                <div className="pointer-events-none absolute left-1/2 top-0 z-10 h-full w-0.5 -translate-x-1/2 bg-white/40" />
+                <div className="pointer-events-none absolute left-1/2 top-0 z-10 -translate-x-1/2 rounded-b-lg bg-white px-2 py-1 text-[10px] font-bold text-black">
                   ▼
                 </div>
                 <div
