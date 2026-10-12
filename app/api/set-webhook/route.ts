@@ -7,7 +7,6 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const key = url.searchParams.get("key");
 
-  // простой пароль, чтобы чужой не дёргал
   if (key !== process.env.WEBHOOK_SECRET) {
     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
   }
@@ -18,19 +17,17 @@ export async function GET(req: Request) {
 
   const webhookUrl = `${APP_URL}/api/telegram`;
 
-  const res = await fetch(
-    `https://api.telegram.org/bot${BOT_TOKEN}/setWebhook`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        url: webhookUrl,
-        secret_token: SECRET,
-        drop_pending_updates: true,
-      }),
-    }
-  );
-
-  const data = await res.json();
-  return NextResponse.json(data);
+  // ⬇️ ДИАГНОСТИКА — покажет, что реально уходит в Telegram
+  return NextResponse.json({
+    debug: {
+      APP_URL,
+      APP_URL_length: APP_URL.length,
+      webhookUrl,
+      webhookUrl_length: webhookUrl.length,
+      has_space: /\s/.test(APP_URL),
+      has_angle: /[<>]/.test(APP_URL),
+      starts_https: APP_URL.startsWith("https://"),
+      token_prefix: BOT_TOKEN.slice(0, 12) + "...",
+    },
+  });
 }
