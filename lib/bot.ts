@@ -3,7 +3,7 @@ import { Bot, InlineKeyboard, webhookCallback } from "grammy";
 const BOT_TOKEN = process.env.BOT_TOKEN!;
 const CHANNEL_ID = process.env.CHANNEL_ID!;
 const CHANNEL_URL = process.env.CHANNEL_INVITE_URL!;
-const WEBAPP_URL = process.env.NEXT_PUBLIC_WEBAPP_URL!;
+const WEBAPP_URL = process.env.WEBAPP_URL!;
 
 export const bot = new Bot(BOT_TOKEN);
 
