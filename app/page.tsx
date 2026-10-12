@@ -1,9 +1,27 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import BottomNav, { TabKey } from "@/components/BottomNav";
+import Gifts from "@/components/tabs/Gifts";
+import Upgrade from "@/components/tabs/Upgrade";
+import Fragment from "@/components/tabs/Fragment";
+import Profile from "@/components/tabs/Profile";
+import { initTelegram } from "@/lib/telegram";
+
 export default function Home() {
+  const [tab, setTab] = useState<TabKey>("gifts");
+
+  useEffect(() => {
+    initTelegram();
+  }, []);
+
   return (
-    <div style={{ padding: 40, background: "#0f0f0f", minHeight: "100vh" }}>
-      <h1 className="text-4xl text-white font-bold">ТЕСТ 123</h1>
-      <p className="text-[#2AABEE] mt-4">Если видишь синий текст — Tailwind работает</p>
-      <div className="mt-8 p-4 bg-red-500 rounded-xl">Красный блок</div>
-    </div>
+    <main className="min-h-screen pb-20">
+      {tab === "gifts" && <Gifts />}
+      {tab === "upgrade" && <Upgrade />}
+      {tab === "fragment" && <Fragment />}
+      {tab === "profile" && <Profile />}
+      <BottomNav active={tab} onChange={setTab} />
+    </main>
   );
 }
