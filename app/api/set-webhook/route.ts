@@ -13,7 +13,7 @@ export async function GET(req: Request) {
   }
 
   const BOT_TOKEN = process.env.BOT_TOKEN!;
-  const APP_URL = process.env.NEXT_PUBLIC_WEBAPP_URL!;
+  const APP_URL = process.env.WEBAPP_URL!;
   const SECRET = process.env.WEBHOOK_SECRET!;
 
   const webhookUrl = `${APP_URL}/api/telegram`;
