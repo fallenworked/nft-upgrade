@@ -40,6 +40,7 @@ export default function Gifts() {
   const [result, setResult] = useState<Gift | null>(null);
 
   const [toast, setToast] = useState<string | null>(null);
+  const [detailGift, setDetailGift] = useState<Gift | null>(null);
 
   const tg = typeof window !== "undefined" ? getTg() : null;
 
@@ -149,7 +150,7 @@ export default function Gifts() {
 
   if (loading) return <div className="p-4 text-white/50">Загрузка…</div>;
 
-  // unique inventory for display (dedupe by gift id, count)
+  // группировка инвентаря
   const invMap = new Map<string, { gift: Gift; count: number }>();
   for (const item of inventory) {
     const k = item.gift.id;
@@ -239,9 +240,10 @@ export default function Gifts() {
         ) : (
           <div className="grid grid-cols-3 gap-2">
             {invList.map(({ gift, count }) => (
-              <div
+              <button
                 key={gift.id}
-                className="overflow-hidden rounded-xl bg-[#1c1c1e]"
+                onClick={() => setDetailGift(gift)}
+                className="overflow-hidden rounded-xl bg-[#1c1c1e] text-left transition active:scale-95"
                 style={{ border: `1px solid ${RARITY[gift.rarity]?.color ?? "#333"}50` }}
               >
                 <div className="relative flex h-20 items-center justify-center bg-[#0f0f10] p-1">
@@ -256,7 +258,7 @@ export default function Gifts() {
                 <div className="px-1.5 py-1">
                   <div className="truncate text-[10px] text-white/70">{gift.name}</div>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         )}
@@ -265,7 +267,7 @@ export default function Gifts() {
       {/* ==== МОДАЛКА ПРЕВЬЮ КЕЙСА ==== */}
       {preview && !reel.length && (
         <div className="fixed inset-0 z-50 flex flex-col bg-black/95">
-          <div className="flex items-center justify-between p-4">
+          <div className="flex shrink-0 items-center justify-between p-4">
             <button onClick={closeAll} className="text-2xl text-white/60">✕</button>
             <div className="text-center">
               <div className="text-lg font-bold text-white">{preview.name}</div>
@@ -276,7 +278,7 @@ export default function Gifts() {
             <div className="w-6" />
           </div>
 
-          <div className="flex-1 overflow-y-auto px-4 pb-4">
+          <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
             <div className="mb-3 text-xs text-white/50">Возможные подарки:</div>
             {previewLoading ? (
               <div className="py-10 text-center text-white/40">Загрузка…</div>
@@ -319,7 +321,7 @@ export default function Gifts() {
             )}
           </div>
 
-          <div className="border-t border-white/5 p-4">
+          <div className="shrink-0 border-t border-white/5 bg-[#0a0a0a] p-4 pb-6">
             <button
               onClick={() => spin(preview)}
               disabled={Number(user?.balance_ton ?? 0) < Number(preview.price_ton)}
@@ -408,6 +410,79 @@ export default function Gifts() {
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {/* ==== МОДАЛКА ДЕТАЛЕЙ ПОДАРКА ==== */}
+      {detailGift && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/80 p-4"
+          onClick={() => setDetailGift(null)}
+        >
+          <div
+            className="w-full max-w-md rounded-3xl bg-[#1c1c1e] p-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <div
+                className="rounded-lg px-2 py-1 text-[10px] font-bold uppercase"
+                style={{
+                  background: `${RARITY[detailGift.rarity]?.color ?? "#666"}25`,
+                  color: RARITY[detailGift.rarity]?.color ?? "#999",
+                }}
+              >
+                {RARITY[detailGift.rarity]?.label ?? detailGift.rarity}
+              </div>
+              <button
+                onClick={() => setDetailGift(null)}
+                className="text-2xl text-white/40"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div
+              className="mx-auto flex h-40 w-40 items-center justify-center rounded-2xl bg-[#0f0f10] p-3"
+              style={{
+                border: `2px solid ${RARITY[detailGift.rarity]?.color ?? "#333"}`,
+              }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={detailGift.image_url}
+                alt={detailGift.name}
+                className="h-full w-full object-contain"
+              />
+            </div>
+
+            <div className="mt-4 text-center">
+              <div className="text-xl font-bold text-white">{detailGift.name}</div>
+              <div className="mt-1 text-sm text-white/50">
+                ≈ {Number(detailGift.base_price_ton).toFixed(2)} TON
+              </div>
+            </div>
+
+            <div className="mt-6 grid grid-cols-2 gap-2">
+              <button
+                onClick={() => {
+                  setToast("Продажа — скоро");
+                  setTimeout(() => setToast(null), 1500);
+                }}
+                className="rounded-xl bg-white/5 py-3 text-sm font-semibold text-white"
+              >
+                Продать
+              </button>
+              <button
+                onClick={() => {
+                  setToast("Апгрейд — скоро");
+                  setTimeout(() => setToast(null), 1500);
+                }}
+                className="rounded-xl bg-[#8B5CF6] py-3 text-sm font-semibold text-white"
+              >
+                В апгрейд
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
